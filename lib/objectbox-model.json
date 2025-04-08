@@ -4,47 +4,84 @@
   "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
   "entities": [
     {
-      "id": "1:9155159512197331489",
-      "lastPropertyId": "6:5930622613499721672",
-      "name": "Quote",
+      "id": "1:4808257288996526108",
+      "lastPropertyId": "5:6437463712345800654",
+      "name": "Author",
       "properties": [
         {
-          "id": "1:6806942850416455836",
+          "id": "1:4940720471307037294",
           "name": "obxId",
           "type": 6,
           "flags": 1
         },
         {
-          "id": "2:5528048911014305683",
+          "id": "2:5427732621838350397",
           "name": "id",
           "type": 9
         },
         {
-          "id": "3:4345194164169575989",
-          "name": "text",
+          "id": "3:8531502348804694739",
+          "name": "name",
           "type": 9
         },
         {
-          "id": "4:5436890040053485827",
-          "name": "author",
-          "type": 9
-        },
-        {
-          "id": "5:6417174446543911204",
+          "id": "4:4911020986038612300",
           "name": "createdAt",
           "type": 10
         },
         {
-          "id": "6:5930622613499721672",
+          "id": "5:6437463712345800654",
           "name": "editedAt",
           "type": 10
         }
       ],
       "relations": []
+    },
+    {
+      "id": "2:6517623198507876270",
+      "lastPropertyId": "6:7004462394311601723",
+      "name": "Quote",
+      "properties": [
+        {
+          "id": "1:6978380449175834928",
+          "name": "obxId",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3699262973239053204",
+          "name": "id",
+          "type": 9
+        },
+        {
+          "id": "3:2956065063136819444",
+          "name": "text",
+          "type": 9
+        },
+        {
+          "id": "4:8539340571453518842",
+          "name": "createdAt",
+          "type": 10
+        },
+        {
+          "id": "5:693606548932508015",
+          "name": "editedAt",
+          "type": 10
+        },
+        {
+          "id": "6:7004462394311601723",
+          "name": "authorId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "1:3387771628354808255",
+          "relationTarget": "Author"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "1:9155159512197331489",
-  "lastIndexId": "0:0",
+  "lastEntityId": "2:6517623198507876270",
+  "lastIndexId": "1:3387771628354808255",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

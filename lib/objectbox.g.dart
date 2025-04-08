@@ -14,47 +14,86 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
-import 'quote.dart';
+import 'model.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
 final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
-      id: const obx_int.IdUid(1, 9155159512197331489),
-      name: 'Quote',
-      lastPropertyId: const obx_int.IdUid(6, 5930622613499721672),
+      id: const obx_int.IdUid(1, 4808257288996526108),
+      name: 'Author',
+      lastPropertyId: const obx_int.IdUid(5, 6437463712345800654),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 6806942850416455836),
+            id: const obx_int.IdUid(1, 4940720471307037294),
             name: 'obxId',
             type: 6,
             flags: 1),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 5528048911014305683),
+            id: const obx_int.IdUid(2, 5427732621838350397),
             name: 'id',
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 4345194164169575989),
-            name: 'text',
+            id: const obx_int.IdUid(3, 8531502348804694739),
+            name: 'name',
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 5436890040053485827),
-            name: 'author',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 6417174446543911204),
+            id: const obx_int.IdUid(4, 4911020986038612300),
             name: 'createdAt',
             type: 10,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(6, 5930622613499721672),
+            id: const obx_int.IdUid(5, 6437463712345800654),
             name: 'editedAt',
             type: 10,
             flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[
+        obx_int.ModelBacklink(
+            name: 'quotes', srcEntity: 'Quote', srcField: 'author')
+      ]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(2, 6517623198507876270),
+      name: 'Quote',
+      lastPropertyId: const obx_int.IdUid(6, 7004462394311601723),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 6978380449175834928),
+            name: 'obxId',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 3699262973239053204),
+            name: 'id',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 2956065063136819444),
+            name: 'text',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 8539340571453518842),
+            name: 'createdAt',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 693606548932508015),
+            name: 'editedAt',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(6, 7004462394311601723),
+            name: 'authorId',
+            type: 11,
+            flags: 520,
+            indexId: const obx_int.IdUid(1, 3387771628354808255),
+            relationTarget: 'Author')
       ],
       relations: <obx_int.ModelRelation>[],
       backlinks: <obx_int.ModelBacklink>[])
@@ -95,8 +134,8 @@ Future<obx.Store> openStore(
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const obx_int.IdUid(1, 9155159512197331489),
-      lastIndexId: const obx_int.IdUid(0, 0),
+      lastEntityId: const obx_int.IdUid(2, 6517623198507876270),
+      lastIndexId: const obx_int.IdUid(1, 3387771628354808255),
       lastRelationId: const obx_int.IdUid(0, 0),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [],
@@ -108,9 +147,58 @@ obx_int.ModelDefinition getObjectBoxModel() {
       version: 1);
 
   final bindings = <Type, obx_int.EntityDefinition>{
-    Quote: obx_int.EntityDefinition<Quote>(
+    Author: obx_int.EntityDefinition<Author>(
         model: _entities[0],
-        toOneRelations: (Quote object) => [],
+        toOneRelations: (Author object) => [],
+        toManyRelations: (Author object) => {
+              obx_int.RelInfo<Quote>.toOneBacklink(
+                      6, object.obxId, (Quote srcObject) => srcObject.author):
+                  object.quotes
+            },
+        getId: (Author object) => object.obxId,
+        setId: (Author object, int id) {
+          object.obxId = id;
+        },
+        objectToFB: (Author object, fb.Builder fbb) {
+          final idOffset = fbb.writeString(object.id);
+          final nameOffset = fbb.writeString(object.name);
+          fbb.startTable(6);
+          fbb.addInt64(0, object.obxId);
+          fbb.addOffset(1, idOffset);
+          fbb.addOffset(2, nameOffset);
+          fbb.addInt64(3, object.createdAt.millisecondsSinceEpoch);
+          fbb.addInt64(4, object.editedAt.millisecondsSinceEpoch);
+          fbb.finish(fbb.endTable());
+          return object.obxId;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final idParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '');
+          final nameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 8, '');
+          final createdAtParam = DateTime.fromMillisecondsSinceEpoch(
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0));
+          final editedAtParam = DateTime.fromMillisecondsSinceEpoch(
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0));
+          final object = Author(
+              id: idParam,
+              name: nameParam,
+              createdAt: createdAtParam,
+              editedAt: editedAtParam)
+            ..obxId =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          obx_int.InternalToManyAccess.setRelInfo<Author>(
+              object.quotes,
+              store,
+              obx_int.RelInfo<Quote>.toOneBacklink(
+                  6, object.obxId, (Quote srcObject) => srcObject.author));
+          return object;
+        }),
+    Quote: obx_int.EntityDefinition<Quote>(
+        model: _entities[1],
+        toOneRelations: (Quote object) => [object.author],
         toManyRelations: (Quote object) => {},
         getId: (Quote object) => object.obxId,
         setId: (Quote object, int id) {
@@ -119,14 +207,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
         objectToFB: (Quote object, fb.Builder fbb) {
           final idOffset = fbb.writeString(object.id);
           final textOffset = fbb.writeString(object.text);
-          final authorOffset = fbb.writeString(object.author);
           fbb.startTable(7);
           fbb.addInt64(0, object.obxId);
           fbb.addOffset(1, idOffset);
           fbb.addOffset(2, textOffset);
-          fbb.addOffset(3, authorOffset);
-          fbb.addInt64(4, object.createdAt.millisecondsSinceEpoch);
-          fbb.addInt64(5, object.editedAt.millisecondsSinceEpoch);
+          fbb.addInt64(3, object.createdAt.millisecondsSinceEpoch);
+          fbb.addInt64(4, object.editedAt.millisecondsSinceEpoch);
+          fbb.addInt64(5, object.author.targetId);
           fbb.finish(fbb.endTable());
           return object.obxId;
         },
@@ -137,21 +224,20 @@ obx_int.ModelDefinition getObjectBoxModel() {
               .vTableGet(buffer, rootOffset, 6, '');
           final textParam = const fb.StringReader(asciiOptimization: true)
               .vTableGet(buffer, rootOffset, 8, '');
-          final authorParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGet(buffer, rootOffset, 10, '');
           final createdAtParam = DateTime.fromMillisecondsSinceEpoch(
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0));
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0));
           final editedAtParam = DateTime.fromMillisecondsSinceEpoch(
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0));
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0));
           final object = Quote(
               id: idParam,
               text: textParam,
-              author: authorParam,
               createdAt: createdAtParam,
               editedAt: editedAtParam)
             ..obxId =
                 const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
-
+          object.author.targetId =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0);
+          object.author.attach(store);
           return object;
         })
   };
@@ -159,28 +245,53 @@ obx_int.ModelDefinition getObjectBoxModel() {
   return obx_int.ModelDefinition(model, bindings);
 }
 
+/// [Author] entity fields to define ObjectBox queries.
+class Author_ {
+  /// See [Author.obxId].
+  static final obxId =
+      obx.QueryIntegerProperty<Author>(_entities[0].properties[0]);
+
+  /// See [Author.id].
+  static final id = obx.QueryStringProperty<Author>(_entities[0].properties[1]);
+
+  /// See [Author.name].
+  static final name =
+      obx.QueryStringProperty<Author>(_entities[0].properties[2]);
+
+  /// See [Author.createdAt].
+  static final createdAt =
+      obx.QueryDateProperty<Author>(_entities[0].properties[3]);
+
+  /// See [Author.editedAt].
+  static final editedAt =
+      obx.QueryDateProperty<Author>(_entities[0].properties[4]);
+
+  /// see [Author.quotes]
+  static final quotes = obx.QueryBacklinkToMany<Quote, Author>(Quote_.author);
+}
+
 /// [Quote] entity fields to define ObjectBox queries.
 class Quote_ {
   /// See [Quote.obxId].
   static final obxId =
-      obx.QueryIntegerProperty<Quote>(_entities[0].properties[0]);
+      obx.QueryIntegerProperty<Quote>(_entities[1].properties[0]);
 
   /// See [Quote.id].
-  static final id = obx.QueryStringProperty<Quote>(_entities[0].properties[1]);
+  static final id = obx.QueryStringProperty<Quote>(_entities[1].properties[1]);
 
   /// See [Quote.text].
   static final text =
-      obx.QueryStringProperty<Quote>(_entities[0].properties[2]);
-
-  /// See [Quote.author].
-  static final author =
-      obx.QueryStringProperty<Quote>(_entities[0].properties[3]);
+      obx.QueryStringProperty<Quote>(_entities[1].properties[2]);
 
   /// See [Quote.createdAt].
   static final createdAt =
-      obx.QueryDateProperty<Quote>(_entities[0].properties[4]);
+      obx.QueryDateProperty<Quote>(_entities[1].properties[3]);
 
   /// See [Quote.editedAt].
   static final editedAt =
-      obx.QueryDateProperty<Quote>(_entities[0].properties[5]);
+      obx.QueryDateProperty<Quote>(_entities[1].properties[4]);
+
+  /// See [Quote.author].
+  static final author =
+      obx.QueryRelationToOne<Quote, Author>(_entities[1].properties[5]);
 }

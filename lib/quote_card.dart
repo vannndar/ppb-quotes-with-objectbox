@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'quote.dart';
+import 'model.dart';
 
 class QuoteCard extends StatelessWidget {
   final Quote quote;
@@ -43,7 +43,7 @@ class QuoteCard extends StatelessWidget {
             ),
             const SizedBox(height: 6.0),
             Text(
-              quote.author,
+              quote.authorName,
               style:
                   authorStyle ??
                   TextStyle(
