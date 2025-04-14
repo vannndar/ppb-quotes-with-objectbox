@@ -9,6 +9,7 @@ This is a simple Flutter project that displays and manages quotes using ObjectBo
 3. [Setting Up ObjectBox](#setting-up-objectbox)
 4. [Creating Models](#creating-models)
 5. [Using ObjectBox for Data Storage](#using-objectbox-for-data-storage)
+6. [Code Explanation](#code-explanation)
 6. [CRUD Operations](#crud-operations)
 7. [Running the App](#running-the-app)
 
@@ -292,6 +293,233 @@ Once the model is created, run the following command to generate the required co
 ```bash
 dart run build_runner build
 ```
+
+Here’s the additional section with explanations for `main.dart`, `author_quotes_page.dart`, and `quote_card.dart`:
+
+---
+
+## Code Explanation
+
+### **main.dart**
+
+`main.dart` is the entry point for the app and handles the display and management of quotes.
+
+- **QuoteList Widget**: This widget is the main screen where all quotes are shown. It provides functionality to sort quotes by date or most recent edits and navigate to the AuthorQuotesPage to view quotes by a specific author.
+  
+- **State Management**: `StatefulWidget` is used here to dynamically update the list of quotes when they are added, updated, or deleted.
+
+- **Floating Action Button (FAB)**: The FAB is used to toggle between showing options to add a new quote or author.
+
+```dart
+class _QuoteListState extends State<QuoteList> {
+  late ObjectBoxHelper objectBoxHelper;
+  bool isInitialized = false;
+  bool _isFabOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    ObjectBoxHelper.create().then((helper) {
+      setState(() {
+        objectBoxHelper = helper;
+        quotes = objectBoxHelper.getAllQuotes();
+        isInitialized = true;
+      });
+    });
+  }
+
+  List<Quote> quotes = [];
+  // Sorting options based on created or edited dates
+  List<Quote> get sortedQuotes {
+    switch (currentSortOption) {
+      case SortOption.newest:
+        return quotes.toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      case SortOption.oldest:
+        return quotes.toList()..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      case SortOption.recentlyEdited:
+        return quotes.toList()..sort((a, b) => b.editedAt.compareTo(a.editedAt));
+    }
+  }
+}
+```
+
+---
+
+### **author_quotes_page.dart**
+
+`author_quotes_page.dart` is the page where quotes from a specific author are displayed.
+
+- **AuthorQuotesPage Widget**: Displays the quotes of a selected author and provides the ability to delete or edit those quotes.
+
+- **Stateful Management**: This page uses `StatefulWidget` to reload the quotes when an author is selected.
+
+- **Quote Management**: Functions to load, delete, and update quotes are included here.
+
+```dart
+class _AuthorQuotesPageState extends State<AuthorQuotesPage> {
+  List<Author> authors = [];
+  Author? selectedAuthor;
+  List<Quote> authorQuotes = [];
+
+  void _loadAuthorQuotes(Author author) {
+    setState(() {
+      selectedAuthor = author;
+      authorQuotes = author.quotes.toList();
+    });
+  }
+
+  void _deleteQuote(Quote quote) {
+    widget.objectBoxHelper.deleteQuote(quote);
+    if (selectedAuthor != null) {
+      setState(() {
+        authorQuotes = selectedAuthor!.quotes.toList();
+      });
+    }
+  }
+
+  void _showUpdateQuoteDialog(Quote quote) {
+    final textController = TextEditingController(text: quote.text);
+    Author? selectedAuthorForQuote = quote.author.target;
+    List<Author> allAuthors = widget.objectBoxHelper.getAllAuthors();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setDialogState) {
+            return AlertDialog(
+              title: const Text('Update Quote'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: textController,
+                    decoration: const InputDecoration(labelText: 'Quote'),
+                    maxLines: 3,
+                  ),
+                  DropdownButton<Author>(
+                    hint: const Text('Select Author'),
+                    value: selectedAuthorForQuote,
+                    onChanged: (Author? newValue) {
+                      setDialogState(() {
+                        selectedAuthorForQuote = newValue;
+                      });
+                    },
+                    items: allAuthors.map((Author author) {
+                      return DropdownMenuItem<Author>(
+                        value: author,
+                        child: Text(author.name),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (textController.text.isNotEmpty && selectedAuthorForQuote != null) {
+                      Navigator.pop(dialogContext);
+                      widget.objectBoxHelper.updateQuote(quote, textController.text, selectedAuthorForQuote!);
+                      if (selectedAuthor != null) {
+                        setState(() {
+                          authorQuotes = selectedAuthor!.quotes.toList();
+                        });
+                      }
+                    }
+                  },
+                  child: const Text('Update'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+```
+
+---
+
+### **quote_card.dart**
+
+`quote_card.dart` defines the UI for displaying individual quotes in a card format.
+
+- **QuoteCard Widget**: Displays the quote text, the author’s name, and the creation/edit date. It also includes buttons for editing and deleting the quote.
+
+- **Edit/Delete Callbacks**: These callbacks are used to trigger the deletion or editing of a quote from the list.
+
+```dart
+class QuoteCard extends StatelessWidget {
+  final Quote quote;
+  final VoidCallback delete;
+  final VoidCallback edit;
+  final Color? cardColor;
+  final TextStyle? textStyle;
+  final TextStyle? authorStyle;
+
+  const QuoteCard({
+    Key? key,
+    required this.quote,
+    required this.delete,
+    required this.edit,
+    this.cardColor,
+    this.textStyle,
+    this.authorStyle,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      color: cardColor ?? theme.cardColor,
+      margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Text(
+              quote.text,
+              style: textStyle ?? TextStyle(fontSize: 18.0, color: Colors.grey[600], fontStyle: FontStyle.italic),
+            ),
+            const SizedBox(height: 6.0),
+            Text(
+              quote.authorName,
+              style: authorStyle ?? TextStyle(fontSize: 14.0, color: Colors.grey[800], fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8.0),
+            Text('Created: ${quote.formattedCreatedAt}', style: TextStyle(fontSize: 10.0, color: Colors.grey[500])),
+            if (quote.editedAt != quote.createdAt)
+              Text('Edited: ${quote.formattedEditedAt}', style: TextStyle(fontSize: 10.0, color: Colors.grey[500])),
+            const SizedBox(height: 8.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(onPressed: edit, label: const Text('Edit'), icon: const Icon(Icons.edit, size: 18)),
+                const SizedBox(width: 8.0),
+                TextButton.icon(onPressed: delete, label: const Text('Delete'), icon: const Icon(Icons.delete, size: 18)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+---
+
+### Additional Notes
+- The `main.dart` file controls the overall app's navigation, sorting of quotes, and interaction with the database.
+- The `author_quotes_page.dart` focuses on handling the author-specific quotes and provides editing functionality.
+- The `quote_card.dart` component is responsible for rendering each quote, displaying related information (such as the author and timestamps), and providing buttons for actions like editing or deleting the quote.
 
 ---
 
